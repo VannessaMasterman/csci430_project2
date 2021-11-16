@@ -116,8 +116,8 @@ public class DisplayGUI extends DisplayManager {
                 }  
             };
             JButton btnSelect = new JButton(actionSelect);
-            btnSelect.setText(option);
             btnSelect.setAlignmentX(Component.LEFT_ALIGNMENT);
+            btnSelect.setText(option);
             if (i == 0) btnSelect.requestFocus();
             panel.add(btnSelect);
         }
@@ -137,6 +137,7 @@ public class DisplayGUI extends DisplayManager {
     public String getInputString(String prompt, boolean singleToken) {
         System.err.println("getInputString not implemented");
          // TODO implement
+        
         return null;
     }
 

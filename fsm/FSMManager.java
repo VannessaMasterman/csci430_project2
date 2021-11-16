@@ -47,6 +47,11 @@ public class FSMManager {
      * Called to run the FSM
      */
     public void run(){
+        display.displayMessage("Here's a message!", false);
+        display.displayMessage("Here's a message!", false);
+        display.displayMessage("Here's a message!", false);
+        display.displayMessage("Here's a message!", false);
+        display.displayMessage("Here's a message!", false);
         display.displayMessage("Here's a message!", true);
 
         FSMEvent event = FSMEvent.NO_EVENT;
@@ -58,6 +63,7 @@ public class FSMManager {
             event = current.getEvent(); // get resulting event from the state
             if (event != FSMEvent.NO_EVENT) handleEvent(event); // as long as there is a valid event, handle it
         }
+        System.exit(0); // need this to close the frame as well if using a GUI
         // once out of loop, we can just return
     }
 

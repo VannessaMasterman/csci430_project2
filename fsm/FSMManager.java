@@ -1,6 +1,7 @@
 package fsm;
 
 import display.DisplayConsole;
+import display.DisplayGUI;
 import display.DisplayManager;
 import fsm.states.State;
 import fsm.states.clerk.StateClerk;
@@ -15,7 +16,8 @@ public class FSMManager {
     /**
      * The display manager instance which will be used by processes that need to be displayed
      */
-    public static DisplayManager display = new DisplayConsole();
+    public static DisplayManager display = new DisplayGUI();
+
 
     /**
      * Transition matrix for the FSM
@@ -45,6 +47,8 @@ public class FSMManager {
      * Called to run the FSM
      */
     public void run(){
+        display.displayMessage("Here's a message!", true);
+
         FSMEvent event = FSMEvent.NO_EVENT;
         doTransition(0); // setup start state
         while (event != FSMEvent.EXIT_PROGRAM){

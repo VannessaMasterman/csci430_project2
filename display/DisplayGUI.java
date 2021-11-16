@@ -91,8 +91,8 @@ public class DisplayGUI extends DisplayManager {
 
     @Override
     public void displayLargeMessage(Iterable<String> lines, boolean holdThread) {
-        // TODO implement
         System.err.println("displayLargeMessage not implemented");
+        // TODO implement
     }
 
     @Override

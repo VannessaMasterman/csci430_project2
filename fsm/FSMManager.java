@@ -1,5 +1,7 @@
 package fsm;
 
+import java.util.Arrays;
+
 import display.DisplayConsole;
 import display.DisplayGUI;
 import display.DisplayManager;
@@ -47,8 +49,6 @@ public class FSMManager {
      * Called to run the FSM
      */
     public void run(){
-        display.getInputString("This is a prompt");
-
         FSMEvent event = FSMEvent.NO_EVENT;
         doTransition(0); // setup start state
         while (event != FSMEvent.EXIT_PROGRAM){

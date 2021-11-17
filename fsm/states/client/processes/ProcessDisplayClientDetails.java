@@ -29,10 +29,15 @@ public class ProcessDisplayClientDetails extends UIProcess {
         }
         d.setHeader("Client Details");
         ArrayList<String> lines = new ArrayList<String>();
-        lines.add("\tName:\t\t" + self.getName());
-        lines.add("\tPhone:\t\t" + self.getPhone());
-        lines.add("\tAddress:\t" + self.getAddress());
-        lines.add("\tID:\t\t" + self.getId());
+        if (self == null){
+            lines.add("Logged in as an invalid client");
+            lines.add("No client data found for id \"" + String.valueOf(Context.get().clientID) + "\"");
+        }else{
+            lines.add("\tName:\t\t" + self.getName());
+            lines.add("\tPhone:\t\t" + self.getPhone());
+            lines.add("\tAddress:\t" + self.getAddress());
+            lines.add("\tID:\t\t" + self.getId());
+        }
         d.displayLargeMessage(lines, true);
     }
     

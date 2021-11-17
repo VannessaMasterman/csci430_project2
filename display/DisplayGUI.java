@@ -1,21 +1,25 @@
 package display;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.KeyStroke;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.DimensionUIResource;
+
+import org.w3c.dom.css.Rect;
 
 import display.gui.ButtonActionGUI;
 
@@ -30,6 +34,7 @@ public class DisplayGUI extends DisplayManager {
     private static final int PANEL_VBOX = BoxLayout.PAGE_AXIS; // option for a vertically stacked box layout
     private static final int PANEL_HBOX = BoxLayout.LINE_AXIS; // option for a horizontally stacked box layout
 
+    private static final int MIN_SCROLLABLE_LINES = 5; // min # of lines before we add a scroll pane
 
     private boolean threadLock = false; // simple latch for thread locking
     protected Object swapDataObject = null;
@@ -40,6 +45,22 @@ public class DisplayGUI extends DisplayManager {
     private final JPanel frameContent;
 
     public DisplayGUI(){
+        // Set look and feel to match system, fallback on cross-platform LAF
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                | UnsupportedLookAndFeelException e) {
+            System.err.println("Failed to load system look and feel, falling back to metal");
+            try {
+                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                    | UnsupportedLookAndFeelException e1) {
+                // if this happens, something went horribly wrong!
+                e1.printStackTrace();
+            }
+        }
+
+
         frame = new JFrame("DisplayHeader");
         frame.setSize(200, 200);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -64,8 +85,6 @@ public class DisplayGUI extends DisplayManager {
         JLabel label = new JLabel(message);
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         content.add(label);
-        // TODO do I need to implement anything for hold thread? The frame does that too???
-
         content.add(Box.createRigidArea(new DimensionUIResource(0, 20)));
         JButton btnContinue = null;
         if(holdThread){
@@ -73,7 +92,7 @@ public class DisplayGUI extends DisplayManager {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    display.unlockThread();                    
+                    display.unlockThread();  
                 }
 
             });
@@ -97,8 +116,59 @@ public class DisplayGUI extends DisplayManager {
 
     @Override
     public void displayLargeMessage(Iterable<String> lines, boolean holdThread) {
-        System.err.println("displayLargeMessage not implemented");
-        // TODO implement
+        JPanel content = createPanel(PANEL_VBOX);
+        int numLines = 0;
+        Dimension largestLabel = new Dimension();
+        for (String message : lines){
+            JLabel label = new JLabel(message);
+            label.setAlignmentX(Component.CENTER_ALIGNMENT);
+            Dimension rect = label.getSize();
+            if (rect.width > largestLabel.width || rect.height > largestLabel.height) largestLabel = rect;            
+            content.add(label);
+            numLines++;
+        }
+        content.add(Box.createRigidArea(new Dimension(0, 20)));
+        JPanel view = content;
+        if (numLines > MIN_SCROLLABLE_LINES){
+            // we need to make this scrollable
+            JPanel subPanel = content;
+            JScrollPane scroll = new JScrollPane(subPanel);
+            Dimension dim = new Dimension(largestLabel.width + 10, largestLabel.height * MIN_SCROLLABLE_LINES);
+            System.out.println("Here's the dimensions of the scroll pane: " + dim.width + ", " + dim.height);
+            //scroll.setPreferredSize(dim);
+            scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+            view = createPanel(PANEL_VBOX);
+            view.add(scroll);
+        }
+        
+        
+        JButton btnContinue = null;
+        if(holdThread){
+            btnContinue = new JButton(new ButtonActionGUI(this){
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    display.unlockThread();  
+                }
+
+            });
+            btnContinue.setText("Continue");
+            // at least on ubuntu this lets the spacebar perform the action, allowing the user to skip using their mouse if preferred
+            btnContinue.setAlignmentX(Component.CENTER_ALIGNMENT);
+            view.add(btnContinue);
+        }
+
+        int padding = 20;
+        view.setBorder(BorderFactory.createEmptyBorder(padding, padding, padding, padding));
+
+        updateFrameDisplay(view);
+        if (btnContinue != null) btnContinue.requestFocus(); // make this button auto selected
+
+
+        keepPrevious = !holdThread;    
+        
+        if(holdThread) holdThreadLocked();
     }
 
     @Override
@@ -109,6 +179,7 @@ public class DisplayGUI extends DisplayManager {
         JLabel label = new JLabel(prompt);
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(label);
+        panel.add(padding(0, 15));
 
         for (int i = 0; i < options.length; i++){
             String option = options[i];
@@ -239,6 +310,7 @@ public class DisplayGUI extends DisplayManager {
 
         boolean result = (boolean) swapDataObject;
         System.out.println("Verified : " + result);
+        keepPrevious = false;
         return result;
     }
 

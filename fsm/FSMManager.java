@@ -47,12 +47,7 @@ public class FSMManager {
      * Called to run the FSM
      */
     public void run(){
-        display.displayMessage("Here's a message!", false);
-        display.displayMessage("Here's a message!", false);
-        display.displayMessage("Here's a message!", false);
-        display.displayMessage("Here's a message!", false);
-        display.displayMessage("Here's a message!", false);
-        display.displayMessage("Here's a message!", true);
+        display.getInputString("This is a prompt");
 
         FSMEvent event = FSMEvent.NO_EVENT;
         doTransition(0); // setup start state

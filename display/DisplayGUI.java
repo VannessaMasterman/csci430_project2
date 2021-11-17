@@ -3,14 +3,18 @@ package display;
 import java.awt.Component;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.plaf.DimensionUIResource;
 
 import display.gui.ButtonActionGUI;
@@ -63,9 +67,9 @@ public class DisplayGUI extends DisplayManager {
         // TODO do I need to implement anything for hold thread? The frame does that too???
 
         content.add(Box.createRigidArea(new DimensionUIResource(0, 20)));
-        
+        JButton btnContinue = null;
         if(holdThread){
-            JButton btnContinue = new JButton(new ButtonActionGUI(this){
+            btnContinue = new JButton(new ButtonActionGUI(this){
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -74,7 +78,6 @@ public class DisplayGUI extends DisplayManager {
 
             });
             btnContinue.setText("Continue");
-            btnContinue.requestFocus(); // make this button auto selected
             // at least on ubuntu this lets the spacebar perform the action, allowing the user to skip using their mouse if preferred
             btnContinue.setAlignmentX(Component.CENTER_ALIGNMENT);
             content.add(btnContinue);
@@ -84,6 +87,9 @@ public class DisplayGUI extends DisplayManager {
         content.setBorder(BorderFactory.createEmptyBorder(padding, padding, padding, padding));
 
         updateFrameDisplay(content);
+        if (btnContinue != null) btnContinue.requestFocus(); // make this button auto selected
+
+
         keepPrevious = !holdThread;    
         
         if(holdThread) holdThreadLocked();
@@ -118,8 +124,8 @@ public class DisplayGUI extends DisplayManager {
             JButton btnSelect = new JButton(actionSelect);
             btnSelect.setAlignmentX(Component.LEFT_ALIGNMENT);
             btnSelect.setText(option);
-            if (i == 0) btnSelect.requestFocus();
             panel.add(btnSelect);
+            panel.add(padding(0, 5));
         }
 
         int padding = 20;
@@ -135,17 +141,105 @@ public class DisplayGUI extends DisplayManager {
 
     @Override
     public String getInputString(String prompt, boolean singleToken) {
-        System.err.println("getInputString not implemented");
-         // TODO implement
-        
-        return null;
+        JPanel panel = createPanel(PANEL_VBOX);
+
+        JLabel label = new JLabel(prompt);
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(label);
+
+        panel.add(padding(0, 10));
+        ButtonActionGUI actionConfirm = new ButtonActionGUI(this) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                display.unlockThread();
+            }
+            
+        };
+
+
+
+        JTextField inputField = new JTextField(15);
+        inputField.setAlignmentX(Component.LEFT_ALIGNMENT);
+        inputField.addActionListener(actionConfirm); // this will let the user press enter from the text field to perform the same action
+
+        panel.add(inputField);
+
+        panel.add(padding(0, 5));
+
+        JButton btnConfirm = new JButton(actionConfirm);
+        btnConfirm.setText("Confirm");
+        btnConfirm.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(btnConfirm);
+
+        int padding = 15;
+        panel.setBorder(BorderFactory.createEmptyBorder(padding, padding, padding, padding));
+        updateFrameDisplay(panel);
+        inputField.requestFocus();
+
+        holdThreadLocked();
+
+        String input = inputField.getText();
+        if (singleToken){
+            String[] tokens = input.split(" ");
+            input = tokens[0];
+        }
+        System.out.println("Got input \"" + input + "\"");
+        keepPrevious = false;
+        return input;
     }
 
     @Override
-    public boolean verify(String prompt) {        
-        System.err.println("verify not implemented");
-         // TODO implement
-        return false;
+    public boolean verify(String prompt) {     
+        JPanel panel = createPanel(PANEL_VBOX);
+
+        JLabel label = new JLabel(prompt);
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        panel.add(label);
+        
+        JPanel buttonsPanel = createPanel(PANEL_HBOX);
+        
+        ButtonActionGUI actionYes = new ButtonActionGUI(this) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                display.swapDataObject = true;
+                display.unlockThread();
+            }
+            
+        };
+        
+        ButtonActionGUI actionNo = new ButtonActionGUI(this) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                display.swapDataObject = false;
+                display.unlockThread();               
+            }
+            
+        };
+        
+        JButton btnYes = new JButton(actionYes);
+        btnYes.setText("Yes");
+        buttonsPanel.add(btnYes);
+
+        JButton btnNo = new JButton(actionNo);
+        btnNo.setText("No");
+        buttonsPanel.add(btnNo);
+        
+        int padding = 10;
+        buttonsPanel.setBorder(BorderFactory.createEmptyBorder(padding,padding, padding, padding));
+        panel.setBorder(BorderFactory.createEmptyBorder(padding,padding, padding, padding));
+        panel.add(buttonsPanel);
+        updateFrameDisplay(panel);
+        btnYes.requestFocus();
+
+        holdThreadLocked();
+
+        boolean result = (boolean) swapDataObject;
+        System.out.println("Verified : " + result);
+        return result;
     }
 
     private void updateFrameDisplay(Component newComp){
@@ -162,6 +256,10 @@ public class DisplayGUI extends DisplayManager {
         BoxLayout layout = new BoxLayout(content, axis);
         content.setLayout(layout);
         return content;
+    }
+
+    private Component padding(int width, int height){
+        return Box.createRigidArea(new DimensionUIResource(width, height));
     }
 
     private void holdThreadLocked(){

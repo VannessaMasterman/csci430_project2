@@ -2,7 +2,6 @@ package display;
 
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 
 import javax.swing.BorderFactory;
@@ -12,14 +11,11 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.DimensionUIResource;
-
-import org.w3c.dom.css.Rect;
 
 import display.gui.ButtonActionGUI;
 

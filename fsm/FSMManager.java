@@ -1,8 +1,5 @@
 package fsm;
 
-import java.util.Arrays;
-
-import display.DisplayConsole;
 import display.DisplayGUI;
 import display.DisplayManager;
 import fsm.states.State;

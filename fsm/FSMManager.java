@@ -1,5 +1,6 @@
 package fsm;
 
+import display.DisplayConsole;
 import display.DisplayGUI;
 import display.DisplayManager;
 import fsm.states.State;
@@ -46,6 +47,10 @@ public class FSMManager {
      * Called to run the FSM
      */
     public void run(){
+
+        display.displayTable(new String[][]{{"A", "B"}, {"C", "D"}, {"E", "F"}}, 2, 3, true);
+
+
         FSMEvent event = FSMEvent.NO_EVENT;
         doTransition(0); // setup start state
         while (event != FSMEvent.EXIT_PROGRAM){

@@ -92,6 +92,15 @@ public abstract class DisplayManager {
 
     public abstract boolean verify(String prompt);
 
+    /**
+     * Displays the provided table of strings to the screen
+     * @param cells a 2-dimensional (String[][]) in (y,x) format
+     * @param width the number of columns (length of second level arrays)
+     * @param height the number of rows (length of first level array)
+     * @param holdThread should the method hold the thread or allow for more to follow?
+     */
+    public abstract void displayTable(String[][] cells, int width, int height, boolean holdThread);
+
 
 
     

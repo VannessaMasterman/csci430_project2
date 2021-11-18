@@ -98,6 +98,21 @@ public class DisplayConsole extends DisplayManager {
         return token.trim().toLowerCase().contains("y");
     }
 
+    @Override
+    public void displayTable(String[][] cells, int width, int height, boolean holdThread) {
+        header();
+        final String seperator = " | ";
+        for (int y = 0; y < cells.length; y++){
+            String[] row = cells[y];
+            for (int x = 0; x < row.length-1; x++){
+                print(row[x] + seperator);
+            }
+            println(row[row.length-1]);
+        }
+
+        if(holdThread) awaitInput();
+    }
+
    
     
 }

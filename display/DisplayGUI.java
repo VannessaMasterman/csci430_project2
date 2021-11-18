@@ -3,6 +3,7 @@ package display;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.GridLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -11,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
@@ -343,6 +345,64 @@ public class DisplayGUI extends DisplayManager {
 
     public void unlockThread() {
         threadLock = false;
+    }
+
+    @Override
+    public void displayTable(String[][] cells, int width, int height, boolean holdThread) {
+        // TODO Auto-generated method stub
+        JPanel view = createPanel(PANEL_VBOX);
+        JPanel content  = new JPanel();
+        JScrollPane scroll = new JScrollPane(content);
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        
+        GridLayout layout = new GridLayout(height, width);
+        layout.setHgap(2);
+        layout.setVgap(2);
+        content.setLayout(layout);
+        Dimension gridSize = new Dimension(width * 80, height * 50);
+        content.setPreferredSize(gridSize);
+        //content.setSize(gridSize);
+        for (int y = 0; y < cells.length; y++){
+            String[] row = cells[y];
+            for (int x = 0; x < row.length; x++){
+                content.add(new JLabel(row[x]));
+            }
+        }
+        System.out.println("Grid size: " + gridSize.toString());
+        view.setPreferredSize(new Dimension(gridSize.width, gridSize.height + 50));
+        //scroll.add(content);
+        view.add(scroll);
+        JButton btnContinue = null;
+        if(holdThread){
+            btnContinue = new JButton(new ButtonActionGUI(this){
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    display.unlockThread();  
+                }
+
+            });
+            btnContinue.setText("Continue");
+            // at least on ubuntu this lets the spacebar perform the action, allowing the user to skip using their mouse if preferred
+            btnContinue.setAlignmentX(Component.CENTER_ALIGNMENT);
+            view.add(btnContinue);
+        }
+
+        int padding = 20;
+        view.setBorder(BorderFactory.createEmptyBorder(padding, padding, padding, padding));
+        updateFrameDisplay(view);
+        if (btnContinue != null) btnContinue.requestFocus(); // make this button auto selected
+
+
+        keepPrevious = !holdThread;    
+        
+        if(holdThread){
+            frame.setResizable(true);
+            holdThreadLocked();
+            frame.setResizable(false);
+        } 
     }
     
 }

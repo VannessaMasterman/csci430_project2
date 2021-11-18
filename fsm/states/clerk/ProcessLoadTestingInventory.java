@@ -49,8 +49,8 @@ public class ProcessLoadTestingInventory extends UIProcess {
             "Unique Items : " + productNames.length
         }), false);
         int amnt = d.getInputInteger("How many items should be generated? (Non-unique) : ");
-        List<String> resultLines = new ArrayList<String>();
-        resultLines.add("Added the following items:");
+        List<String[]> resultLines = new ArrayList<String[]>();
+        resultLines.add(new String[]{"Product Name", "Quantity", "Supplier"});
         for (int i = 0; i < amnt; i++){
             // add items
             String product = (rand.nextBoolean() ? modifiers[rand.nextInt(modifiers.length)] + "_" : "" ) + productNames[rand.nextInt(productNames.length)];
@@ -61,9 +61,15 @@ public class ProcessLoadTestingInventory extends UIProcess {
             retailPrice -= retailPrice % 0.01;
             int quantity = rand.nextInt(maxQuantity - minQuantity) + minQuantity;
             Inventory.instance().addProduct(product, supplier, purchasePrice, retailPrice, quantity);
-            resultLines.add("\t" + product + " x " + quantity + " || from " + supplier);
+            //resultLines.add("\t" + product + " x " + quantity + " || from " + supplier);
+            resultLines.add(new String[]{product, Integer.toString(quantity), supplier});
         }
-        d.displayLargeMessage(resultLines, true);
+        d.displayMessage("Added the following items", false);
+        String[][] cells = new String[resultLines.size()][3];
+        for (int i = 0; i < cells.length; i++){
+            cells[i] = resultLines.get(i);
+        }
+        d.displayTable(cells, 3, cells.length, true);
     }
 
 

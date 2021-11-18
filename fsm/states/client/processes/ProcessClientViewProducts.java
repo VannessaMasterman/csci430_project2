@@ -20,21 +20,27 @@ public class ProcessClientViewProducts extends UIProcess {
         DisplayManager d = FSMManager.display;
         d.setHeader("Products Listings");
         Iterator<ProductList> itr = Inventory.instance().getInventoryIterator();
-        ArrayList<String> lines = new ArrayList<String>();
+        ArrayList<String[]> lines = new ArrayList<String[]>();
 
-        lines.add("Item\t| Quantity\t| Price");
+        lines.add(new String[]{"Item","Quantity","Price"});
         while(itr.hasNext()){
             ProductList pl = itr.next();
             String id = pl.getProductID();
             double price = pl.getRetailPrice();
             int qty = pl.getQuantity();
-            lines.add(String.join("\t| ", new String[]{
+            lines.add(new String[]{
                 "\"" +id  +"\"",
                 "" + qty,
                 "$" + price
-            })); 
+            }); 
         }
-        d.displayLargeMessage(lines, true);
+        String[][] cells = new String[lines.size()][3];
+        for(int i = 0; i < cells.length; i++){
+            cells[i] = lines.get(i);
+        }
+        d.displayMessage("Available Items:", false);
+        d.displayTable(cells, 3, cells.length, true);
+
 
     }
     

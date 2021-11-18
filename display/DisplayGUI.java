@@ -12,7 +12,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
@@ -62,7 +61,7 @@ public class DisplayGUI extends DisplayManager {
         frame = new JFrame("DisplayHeader");
         frame.setSize(200, 200);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
+        //frame.setResizable(false);
 
         frameContent = createPanel(PANEL_VBOX);
         frame.getContentPane().add(frameContent);
@@ -179,6 +178,7 @@ public class DisplayGUI extends DisplayManager {
         panel.add(label);
         panel.add(padding(0, 15));
 
+        JButton firstButton = null;
         for (int i = 0; i < options.length; i++){
             String option = options[i];
 
@@ -191,6 +191,7 @@ public class DisplayGUI extends DisplayManager {
                 }  
             };
             JButton btnSelect = new JButton(actionSelect);
+            if (i == 0) firstButton = btnSelect;
             btnSelect.setAlignmentX(Component.LEFT_ALIGNMENT);
             btnSelect.setText(option);
             panel.add(btnSelect);
@@ -203,6 +204,7 @@ public class DisplayGUI extends DisplayManager {
         
         updateFrameDisplay(panel);
         threadLock = true;
+        if (firstButton != null) firstButton.requestFocus();
         holdThreadLocked();
         int index = (int)swapDataObject;
         return index;
@@ -361,7 +363,7 @@ public class DisplayGUI extends DisplayManager {
         layout.setHgap(2);
         layout.setVgap(2);
         content.setLayout(layout);
-        Dimension gridSize = new Dimension(width * 80, height * 50);
+        Dimension gridSize = new Dimension(width * 80, height * 20);
         content.setPreferredSize(gridSize);
         //content.setSize(gridSize);
         for (int y = 0; y < cells.length; y++){
@@ -370,7 +372,7 @@ public class DisplayGUI extends DisplayManager {
                 content.add(new JLabel(row[x]));
             }
         }
-        System.out.println("Grid size: " + gridSize.toString());
+        //System.out.println("Grid size: " + gridSize.toString());
         view.setPreferredSize(new Dimension(gridSize.width, gridSize.height + 50));
         //scroll.add(content);
         view.add(scroll);
@@ -399,9 +401,9 @@ public class DisplayGUI extends DisplayManager {
         keepPrevious = !holdThread;    
         
         if(holdThread){
-            frame.setResizable(true);
+            //frame.setResizable(true);
             holdThreadLocked();
-            frame.setResizable(false);
+            //frame.setResizable(false);
         } 
     }
     

@@ -36,61 +36,82 @@ public class PQueryInventory extends UIProcess {
 		while(itr.hasNext()){
 			// process entire inventory
 			ProductList pl = itr.next();
+
 			int numSuppliers = pl.getNumberofSuppliers();
 			String productID = pl.getProductID();
 			int quantity = pl.getQuantity();
 			int waitlisted = pl.getWaitlistQuantity();
 			double retailPrice = pl.getRetailPrice();
 
-			String headerString = String.join("", new String[]{
-				productID, " || " + numSuppliers, " | " + quantity, " | " + waitlisted, " | " + retailPrice
-			});
-
-			List<String> supplierLines = new ArrayList<String>();
-			supplierLines.add("\tSupplierID \tSupplier Price \tSupplier Quantity");
+			List<String[]> supplierLines = new ArrayList<String[]>();
 			Iterator<Product> supItr = pl.productInventory.iterator();
+			boolean firstSupplier = true;
 			while(supItr.hasNext()){
 				Product product = supItr.next();
 				String supplierID = product.getsupplierID();
 				double supplierPrice = product.getsupplierPrice();
 				int supplierQuantity = product.getsupplierQuantity();
-				String supplierLine = String.join("", new String[]{
-					"\t|| ", supplierID, "| $" + supplierPrice, " | " + supplierQuantity, "qty |"
-				});
+				String[] supplierLine = new String[]{(firstSupplier? productID : "-"),
+					 supplierID,"$" + supplierPrice, Integer.toString(supplierQuantity)};
 				supplierLines.add(supplierLine);
+				if(firstSupplier) firstSupplier = false;
 			}
 			// load entry
-			inventory.add(new ProductListEntry(headerString, supplierLines));
+
+			ProductListEntry ple = new ProductListEntry();
+			ple.productID = productID;
+			ple.numSuppliers = Integer.toString(numSuppliers);
+			ple.quantity = Integer.toString(quantity);
+			ple.waitlisted = Integer.toString(waitlisted);
+			ple.retailPrice = "$" + retailPrice;
+	
+			ple.supplierRows = supplierLines;
+			inventory.add(ple);
 		}
-		List<String> allLines = new ArrayList<String>();
+		if (inventory.size() <= 0){
+			d.displayMessage("No products in inventory.", true);
+		}else{
+			// display table of individual products
+			int totalSupplierRows = 0;
+			String[][] cells = new String[inventory.size()+1][5];
+			cells[0] = new String[]{"productID", "numSuppliers", "quantity", "waitlisted", "retailPrice"};
+			for (int i = 0; i < inventory.size(); i++){
+				ProductListEntry ple = inventory.get(i);
+				cells[i+1] = ple.getRowOfData();
+				totalSupplierRows += ple.supplierRows.size();
+			}
+			d.displayTable(cells, 5, cells.length, true);
+			// display table of supplier data
+			cells = new String[totalSupplierRows + 1][4];
+			cells[0] = new String[]{
+				"Product","supplierID","supplierPrice", "supplierQuantity"};
+			for (int i = 0; i < inventory.size(); i++){
+				ProductListEntry ple = inventory.get(i);
+				List<String[]> rows = ple.supplierRows;
+				for(int j = 0; j < rows.size(); j++){
+					String[] row = rows.get(j);
+					cells[i+1+j] = row;
+				}
+			}
+			d.displayTable(cells, 4, cells.length, true);
 
-		allLines.add("ProductID \tNo. Suppliers \tTotal Quantity \tWaitlist \tRetailPrice");
-		for(ProductListEntry ple : inventory){
-			allLines.add(ple.headerLine);
-			allLines.addAll(ple.supplierLines);
 		}
-		if (allLines.size() == 1){
-			// no products in inventory
-			allLines.add("\t|| No Products In Inventory ||");
-		}
-
-		d.displayLargeMessage(allLines, true);
-
-		// Product ID || # Suppliers | Total Quantity | Waitlisted | Retail Price |
-		//		|| Supplier ID | Supplier Price | Supplier Quantity |
-
 	}
 
 	/**
 	 * Temp record for holding data of a single product listing entry
 	 */
 	private class ProductListEntry {
-		public final String headerLine;
-		public final List<String> supplierLines;
+		public String productID = "";
+		public String numSuppliers = "";
+		public String quantity = "";
+		public String waitlisted = "";
+		public String retailPrice = "";
 
-		public ProductListEntry(String header, List<String> lines){
-			headerLine = header;
-			supplierLines = lines;
+		public List<String[]> supplierRows = new ArrayList<String[]>();
+
+		public String[] getRowOfData(){
+			return new String[]{productID, numSuppliers, quantity, waitlisted, retailPrice};
 		}
 	} 
 }

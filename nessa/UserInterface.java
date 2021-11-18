@@ -2,6 +2,7 @@ package nessa;
 
 import fsm.Context;
 import fsm.FSMManager;
+import fsm.states.clerk.ProcessLoadTestingInventory;
 
 /**
  * 
@@ -13,10 +14,14 @@ public class UserInterface {
 		for (String s : args){
 			if (s.startsWith("-")){
 				// treat as an argument
-				String key = s.substring(s.lastIndexOf("-"));
+				String key = s.substring(s.lastIndexOf("-")+1).toLowerCase();
 				System.out.println("Handling argument key : \"" + key + "\"");
-				if (key.toLowerCase().equals("headless")){
+				if (key.equals("headless")){
 					Context.get().headless = true;
+				}
+				if (key.equals("rng")){
+					ProcessLoadTestingInventory plti = new ProcessLoadTestingInventory();
+					plti.processHeadless(50, -1); // generate 50 items completely randomly
 				}
 			}
 		}

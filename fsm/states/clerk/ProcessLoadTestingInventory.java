@@ -72,5 +72,26 @@ public class ProcessLoadTestingInventory extends UIProcess {
         d.displayTable(cells, 3, cells.length, true);
     }
 
+    /**
+     * Loads in a debug inventory for the project. This is done internally without any input or display for the user. 
+     * @param amnt amount of items to load
+     * @param seed the seed for random, or -1 for a random seed
+     */
+    public void processHeadless(int amnt, long seed) {
+        Random rand = new Random();
+        if (seed != -1) rand.setSeed(seed);
+        for (int i = 0; i < amnt; i++){
+            String product = (rand.nextBoolean() ? modifiers[rand.nextInt(modifiers.length)] + "_" : "" ) + productNames[rand.nextInt(productNames.length)];
+            String supplier = supplierNames[rand.nextInt(supplierNames.length)];
+            double purchasePrice = rand.nextDouble() * (maxSupplierPrice - minSupplierPrice) + minSupplierPrice;
+            purchasePrice -= purchasePrice % 0.01;
+            double retailPrice = rand.nextDouble() * (maxRetailPriceOffset - minRetailPriceOffset) + minRetailPriceOffset + purchasePrice;
+            retailPrice -= retailPrice % 0.01;
+            int quantity = rand.nextInt(maxQuantity - minQuantity) + minQuantity;
+            Inventory.instance().addProduct(product, supplier, purchasePrice, retailPrice, quantity);
+        }
+    }
+
+
 
 }

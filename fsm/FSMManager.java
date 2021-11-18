@@ -1,6 +1,7 @@
 package fsm;
 
 import display.DisplayConsole;
+import display.DisplayEmpty;
 import display.DisplayGUI;
 import display.DisplayManager;
 import fsm.states.State;
@@ -16,7 +17,7 @@ public class FSMManager {
     /**
      * The display manager instance which will be used by processes that need to be displayed
      */
-    public static DisplayManager display = new DisplayGUI();
+    public static DisplayManager display = new DisplayEmpty();
 
 
     /**
@@ -42,6 +43,11 @@ public class FSMManager {
         new StateViewClerk(),   // 4
         new StateViewClient()   // 5
     };
+
+    public FSMManager(){
+        boolean headless = Context.get().headless;
+        FSMManager.display = headless? new DisplayConsole() : new DisplayGUI();
+    }
 
     /**
      * Called to run the FSM

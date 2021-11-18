@@ -24,6 +24,8 @@ public class Context {
     public int currentState = 0;
     public int previousState = 0;
 
+    public boolean headless = false;
+
     private Cart clientCart;
     public Cart getCart(){
         if (clientCart == null) clientCart = new Cart();

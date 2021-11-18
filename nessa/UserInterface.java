@@ -1,5 +1,6 @@
 package nessa;
 
+import fsm.Context;
 import fsm.FSMManager;
 
 /**
@@ -9,6 +10,16 @@ import fsm.FSMManager;
 public class UserInterface {
 	
 	public static void main(String[] args){
+		for (String s : args){
+			if (s.startsWith("-")){
+				// treat as an argument
+				String key = s.substring(s.lastIndexOf("-"));
+				System.out.println("Handling argument key : \"" + key + "\"");
+				if (key.toLowerCase().equals("headless")){
+					Context.get().headless = true;
+				}
+			}
+		}
 		UserInterface ui = new UserInterface();
 		ui.start();
 	}

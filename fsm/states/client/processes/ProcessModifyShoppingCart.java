@@ -23,7 +23,7 @@ public class ProcessModifyShoppingCart extends UIProcess {
         d.setHeader("Cart - " + Context.get().clientID);
         int index = d.selectFromOptions("Please choose an operation", new String[]{"View Cart", "Add Item(s)", "Remove Item(s)", "Finish"});
         if (index == 0){
-            viewCart();
+            viewCart(true);
         }else if(index == 1){
             // add
             addItems();
@@ -37,7 +37,7 @@ public class ProcessModifyShoppingCart extends UIProcess {
         process();
     }
 
-    private void viewCart(){
+    private void viewCart(boolean lockThread){
         DisplayManager d = FSMManager.display;
         d.setHeader("Cart - " + Context.get().clientID + ": View Carts");
 
@@ -60,13 +60,13 @@ public class ProcessModifyShoppingCart extends UIProcess {
         }
         d.displayMessage("Items currently in cart", false);
         d.displayMessage("Total Price: $" + cart.getTotalAmount(), false);
-        d.displayTable(cells, 4, cells.length, true);
+        d.displayTable(cells, 4, cells.length, lockThread);
     }
 
     private void addItems(){
         DisplayManager d = FSMManager.display;
         d.setHeader("Cart - " + Context.get().clientID + ": Adding Items");
-        displayCart();
+        viewCart(false);
         String id = d.getInputString("Please enter the product ID to add ", false);
         int quantity = d.getInputInteger("How many would you like to add? ");
         Context.get().getCart().addToCart(id, quantity);
@@ -76,15 +76,12 @@ public class ProcessModifyShoppingCart extends UIProcess {
     private void removeItems(){
         DisplayManager d = FSMManager.display;
         d.setHeader("Cart - " + Context.get().clientID + "\tRemoving Items");
-        displayCart();
+        viewCart(false);
         String id = d.getInputString("Please enter the product ID to remove ", false);
         int quantity = d.getInputInteger("How many would you like to remove?\n(Entering a larger quantity than is present will remove the item from your cart.) ");
         Context.get().getCart().removeFromCart(id, quantity);
         if(d.verify("Would you like to remove more items?")) removeItems(); // recurse for more
     }
 
-    private void displayCart(){
-        Context.get().getCart().showCart(); // TODO this is bad. Need a better system for porting to GUI
-    }
     
 }

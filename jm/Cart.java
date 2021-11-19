@@ -4,6 +4,7 @@ package jm;
 Author: Israel Musa--*/
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import fsm.FSMManager;
@@ -22,13 +23,13 @@ public class Cart {
  * @author Vannessa
  */
 
-	ArrayList<ProductEntry> product;
+	ArrayList<CartProductEntry> product;
 	double totalAmount;
 	double chargeAmount;
 	double tax;
     
 	public Cart() {
-		this.product = new ArrayList<ProductEntry>();
+		this.product = new ArrayList<CartProductEntry>();
 		this.totalAmount = 0;
 		this.chargeAmount = 0;
 		this.tax = 0;
@@ -41,21 +42,21 @@ public class Cart {
 			return;
 		}
 		ProductList pl = Inventory.instance().warehouseInventory.get(index);
-		this.product.add(new ProductEntry(productID, quantity, pl.getRetailPrice()));
+		this.product.add(new CartProductEntry(productID, quantity, pl.getRetailPrice()));
 	}
 	public void showCart() {
-		ListIterator<ProductEntry> iterator = product.listIterator();
+		ListIterator<CartProductEntry> iterator = product.listIterator();
 		while(iterator.hasNext()) {
 			// TODO this is really not what we want for this. I'm too tired to port it though so this is going to get left to the individual project submissions
 			// leaving a to do so people using IDEs can find this quickly
-			ProductEntry product1 = iterator.next();
+			CartProductEntry product1 = iterator.next();
 			System.out.println(product1);
 		}
 	}
 	public void removeFromCart(String productID, int quantity) {
-		ListIterator<ProductEntry> iterator1 = product.listIterator();
+		ListIterator<CartProductEntry> iterator1 = product.listIterator();
 		while(iterator1.hasNext()) {
-			ProductEntry pe = iterator1.next();
+			CartProductEntry pe = iterator1.next();
 			if (pe.getProductName().equals(productID)) {
 				pe.quantity -= quantity;
 				if (pe.quantity <= 0){
@@ -66,10 +67,10 @@ public class Cart {
 		}
 	}
 	public double getTotalAmount() {
-		ListIterator<ProductEntry> iterator2 = product.listIterator();
+		ListIterator<CartProductEntry> iterator2 = product.listIterator();
 		this.totalAmount = 0;
 		while(iterator2.hasNext()) {
-			ProductEntry product3 = iterator2.next();
+			CartProductEntry product3 = iterator2.next();
 			this.totalAmount = this.totalAmount + (product3.getUnitPrice() * product3.quantity);
 		}
 		return this.totalAmount;
@@ -81,9 +82,9 @@ public class Cart {
 		return this.chargeAmount;
 	}
 	public void printInvoice() {
-		ListIterator<ProductEntry> iterator3 = product.listIterator();
+		ListIterator<CartProductEntry> iterator3 = product.listIterator();
 		while(iterator3.hasNext()) {
-			ProductEntry product4 = iterator3.next();
+			CartProductEntry product4 = iterator3.next();
 			System.out.print(product4.getProductName() + "\t");
 			System.out.print(product4.quantity + "\t");
 			System.out.print(product4.getUnitPrice() + "\t");
@@ -95,30 +96,7 @@ public class Cart {
 		System.out.println("\t\t\t" + "Total: " + this.getChargeAmount());
 	}
 
-	private class ProductEntry {
-
-		private final String name;
-		private final double unitPrice;
-		
-		public int quantity;
-
-		ProductEntry(String name, int quantity, double unitPrice){
-			this.name = name;
-			this.quantity = quantity;
-			this.unitPrice = unitPrice;
-		}
-
-		public String getProductName() {
-			return name;
-		}
-
-		public double getUnitPrice() {
-			return unitPrice;
-		}
-
-		public String toString(){
-			return name + " x" + quantity + " : $" + unitPrice; 
-		}
-
+	public Iterator<CartProductEntry> getIterator(){
+		return product.iterator();
 	}
 }
